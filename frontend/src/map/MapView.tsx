@@ -26,8 +26,14 @@ const STYLE: StyleSpecification = {
   layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#0c1b2a' } }],
 };
 
-/** Arrow pointing north, drawn on a canvas and registered as an SDF image so it can be tinted. */
-function arrowImage(): { width: number; height: number; data: Uint8Array } {
+type IconImage = { width: number; height: number; data: Uint8Array };
+
+/**
+ * Asset symbols, drawn on a canvas (no sprite file is fetched) and registered as SDF images so the
+ * map can tint them. Both point north; the layer rotates them by heading. AIR and SURFACE differ by
+ * shape as well as colour, so the kind is readable without relying on colour alone.
+ */
+function drawIcon(draw: (ctx: CanvasRenderingContext2D) => void): IconImage {
   const size = 32;
   const canvas = document.createElement('canvas');
   canvas.width = size;
@@ -36,14 +42,47 @@ function arrowImage(): { width: number; height: number; data: Uint8Array } {
   if (!ctx) throw new Error('2d canvas unavailable');
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.moveTo(16, 2);
-  ctx.lineTo(27, 29);
-  ctx.lineTo(16, 22);
-  ctx.lineTo(5, 29);
+  draw(ctx);
   ctx.closePath();
   ctx.fill();
   const img = ctx.getImageData(0, 0, size, size);
   return { width: size, height: size, data: new Uint8Array(img.data.buffer) };
+}
+
+/** Aircraft: fuselage, swept wings and tailplane. */
+function aircraftIcon(): IconImage {
+  return drawIcon((c) => {
+    c.moveTo(16, 1);
+    c.lineTo(18, 5);
+    c.lineTo(18, 11);
+    c.lineTo(30, 18);
+    c.lineTo(30, 21);
+    c.lineTo(18, 17);
+    c.lineTo(18, 25);
+    c.lineTo(22, 28);
+    c.lineTo(22, 31);
+    c.lineTo(16, 29);
+    c.lineTo(10, 31);
+    c.lineTo(10, 28);
+    c.lineTo(14, 25);
+    c.lineTo(14, 17);
+    c.lineTo(2, 21);
+    c.lineTo(2, 18);
+    c.lineTo(14, 11);
+    c.lineTo(14, 5);
+  });
+}
+
+/** Ship: pointed bow, straight sides, square stern. */
+function shipIcon(): IconImage {
+  return drawIcon((c) => {
+    c.moveTo(16, 1);
+    c.quadraticCurveTo(24, 9, 23, 16);
+    c.lineTo(23, 30);
+    c.lineTo(9, 30);
+    c.lineTo(9, 16);
+    c.quadraticCurveTo(8, 9, 16, 1);
+  });
 }
 
 function featureCollection(store: PositionStore): GeoJSON.FeatureCollection {
@@ -85,7 +124,8 @@ export function MapView({ store, zones, selected, track, onSelect, onViewport, f
     map.addControl(new maplibregl.ScaleControl({ unit: 'nautical' }), 'bottom-left');
 
     map.on('load', () => {
-      map.addImage('arrow', arrowImage(), { sdf: true });
+      map.addImage('icon-air', aircraftIcon(), { sdf: true });
+      map.addImage('icon-surface', shipIcon(), { sdf: true });
       map.addSource('graticule', { type: 'geojson', data: graticule(2) });
       map.addSource('zones', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
       map.addSource('track', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
@@ -108,7 +148,7 @@ export function MapView({ store, zones, selected, track, onSelect, onViewport, f
       map.addLayer({
         id: 'assets', type: 'symbol', source: 'assets',
         layout: {
-          'icon-image': 'arrow',
+          'icon-image': ['case', ['==', ['get', 'k'], 1], 'icon-air', 'icon-surface'],
           'icon-rotate': ['get', 'h'],
           'icon-rotation-alignment': 'map',
           'icon-allow-overlap': true,
@@ -210,11 +250,19 @@ export function MapView({ store, zones, selected, track, onSelect, onViewport, f
   }, [focus]);
 
   return (
-    <div
-      ref={container}
-      className="map"
+    <div className="map-wrap">
+      <div
+        ref={container}
+        className="map"
       role="application"
-      aria-label="Live map of assets and zones. Use arrow keys to pan and plus or minus to zoom. Use the Zones tab for a list of assets inside each zone."
-    />
+        aria-label="Live map of assets and zones. Use arrow keys to pan and plus or minus to zoom. Use the Zones tab for a list of assets inside each zone."
+      />
+      <ul className="legend" aria-label="Map legend">
+        <li><span className="sym sym-air" aria-hidden="true">✈</span> Air asset</li>
+        <li><span className="sym sym-surface" aria-hidden="true">▲</span> Surface asset</li>
+        <li><span className="swatch swatch-restricted" aria-hidden="true" /> Restricted zone</li>
+        <li><span className="swatch swatch-advisory" aria-hidden="true" /> Advisory zone</li>
+      </ul>
+    </div>
   );
 }
