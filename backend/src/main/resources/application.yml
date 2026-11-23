@@ -1,10 +1,7 @@
-# All environment-specific values come from the environment (or files mounted at deploy time).
-# Nothing in this file is a secret.
 spring:
   application:
     name: zone-watch
   config:
-    # deploy-time secrets as files (for example /run/zw-secrets/db_password -> property db_password)
     import: optional:configtree:${ZW_SECRETS_DIR:/run/zw-secrets}/
   threads:
     virtual:
@@ -79,7 +76,8 @@ logging:
 
 zw:
   instance: ${ZW_INSTANCE:local}
-  users-file: ${ZW_USERS_FILE:}
+  # deploy-time secret, never on the classpath; the default suits a run from backend/ in the IDE
+  users-file: ${ZW_USERS_FILE:config/users.json}
   zones-file: ${ZW_ZONES_FILE:}
   jwt-secret: ${ZW_JWT_SECRET:}
   jwt-ttl: ${ZW_JWT_TTL:PT12H}

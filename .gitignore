@@ -13,6 +13,8 @@ bundle/
 
 # deploy-time secrets and local config: never commit
 users*.json
+*seed-users*.json
+backend/config/
 !backend/src/test/resources/test-users.json
 *.env.local
 .env
