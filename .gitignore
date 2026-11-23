@@ -1,0 +1,18 @@
+# build output
+target/
+node_modules/
+dist/
+bundle/
+*.log
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# deploy-time secrets and local config: never commit
+users*.json
+!backend/src/test/resources/test-users.json
+*.env.local
+.env
