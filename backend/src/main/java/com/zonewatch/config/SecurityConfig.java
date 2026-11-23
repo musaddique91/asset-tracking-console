@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zonewatch.auth.JwtAuthFilter;
 import com.zonewatch.common.ProblemCode;
 import com.zonewatch.common.Problems;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,13 +12,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /** Role rules of the contract: INGEST feeds, OPERATOR and SUPERVISOR read and work alerts. */
 @Configuration
+@ConditionalOnWebApplication
 public class SecurityConfig {
 
     @Bean
@@ -30,6 +30,8 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/health", "/error").permitAll()
+                        // the console's static files (served by every instance, see WebConfig)
+                        .requestMatchers(HttpMethod.GET, "/", "/index.html", "/assets/**", "/favicon.ico").permitAll()
                         // management endpoints are not routed by the load balancer; reachable inside the network only
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
@@ -55,10 +57,5 @@ public class SecurityConfig {
         FilterRegistrationBean<JwtAuthFilter> registration = new FilterRegistrationBean<>(filter);
         registration.setEnabled(false);
         return registration;
-    }
-
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

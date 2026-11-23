@@ -8,6 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -92,6 +94,17 @@ public class StreamHub {
         Message m = new Message(event, data);
         for (Client c : clients) {
             c.offer(m);
+        }
+    }
+
+    /**
+     * On shutdown, end live streams at once instead of letting graceful shutdown wait for them:
+     * the browsers reconnect through the load balancer to the other instance.
+     */
+    @EventListener(ContextClosedEvent.class)
+    void closeAll() {
+        for (Client c : clients) {
+            c.close();
         }
     }
 

@@ -3,6 +3,7 @@ package com.zonewatch;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -13,7 +14,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  *   migrate  apply Flyway migrations up to ZW_FLYWAY_TARGET and exit (one-shot container)
  *   other    one-shot maintenance tasks, see com.zonewatch.tool
  */
-@SpringBootApplication
+// No auto-configured in-memory user: users come only from the mounted users file.
+@SpringBootApplication(exclude = UserDetailsServiceAutoConfiguration.class)
 @ConfigurationPropertiesScan
 @EnableScheduling
 public class ZoneWatchApplication {
