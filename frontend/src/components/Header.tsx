@@ -4,6 +4,7 @@ import type { ConnectionState } from '../api/stream';
 import type { Stats } from '../api/types';
 import type { Session } from '../session';
 import { Radar } from './Radar';
+import { UserMenu } from './UserMenu';
 
 interface Props {
   session: Session;
@@ -50,14 +51,7 @@ export function Header({ session, connection, assetCount, onSignOut }: Props) {
         <div><dt>Reports</dt><dd>{stats?.accepted.toLocaleString() ?? '–'}</dd></div>
         <div><dt>Rejected</dt><dd>{stats?.rejected.toLocaleString() ?? '–'}</dd></div>
       </dl>
-      <div className="user">
-        <span>
-          Signed in as <strong>{session.username}</strong> <span className="role">{session.role.toLowerCase()}</span>
-        </span>
-        <button type="button" className="secondary" onClick={onSignOut}>
-          Sign out
-        </button>
-      </div>
+      <UserMenu session={session} onSignOut={onSignOut} />
     </header>
   );
 }
