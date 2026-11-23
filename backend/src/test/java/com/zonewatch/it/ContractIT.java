@@ -58,6 +58,9 @@ class ContractIT extends AbstractIT {
     void batchMediaTypeAndSizeLimits() {
         assertThat(send("POST", "/api/v1/reports/batch", "feed", "application/json", "{}").code())
                 .isEqualTo("UNSUPPORTED_MEDIA_TYPE");
+        assertThat(send("POST", "/api/v1/reports/batch", "feed", null, "{}\n").code()).isEqualTo("UNSUPPORTED_MEDIA_TYPE");
+        assertThat(send("POST", "/api/v1/reports/batch", "feed", "not a media type", "{}\n").code())
+                .isEqualTo("UNSUPPORTED_MEDIA_TYPE");
         assertThat(send("POST", "/api/v1/reports/batch", "feed", "application/x-ndjson; charset=utf-8", "\"x\"\n").status())
                 .isEqualTo(200);
         List<String> lines = new ArrayList<>();

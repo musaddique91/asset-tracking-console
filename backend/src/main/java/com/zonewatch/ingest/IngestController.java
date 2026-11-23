@@ -22,7 +22,7 @@ public class IngestController {
 
     static final int MAX_BYTES = 5 * 1024 * 1024;
     static final int MAX_LINES = 1000;
-    private static final MediaType NDJSON = MediaType.parseMediaType("application/x-ndjson");
+    static final String NDJSON_VALUE = "application/x-ndjson";
 
     private final IngestService ingest;
 
@@ -30,18 +30,9 @@ public class IngestController {
         this.ingest = ingest;
     }
 
-    @PostMapping(path = "/api/v1/reports/batch", produces = MediaType.APPLICATION_JSON_VALUE)
+    /** Any other Content-Type is refused by Spring with 415 (mapped to UNSUPPORTED_MEDIA_TYPE). */
+    @PostMapping(path = "/api/v1/reports/batch", consumes = NDJSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public BatchResult batch(HttpServletRequest request) throws IOException {
-        String contentType = request.getContentType();
-        MediaType type;
-        try {
-            type = contentType == null ? null : MediaType.parseMediaType(contentType);
-        } catch (Exception e) {
-            type = null;
-        }
-        if (type == null || !NDJSON.equalsTypeAndSubtype(type)) {
-            throw new ApiException(ProblemCode.UNSUPPORTED_MEDIA_TYPE, "Content-Type must be application/x-ndjson");
-        }
         // read at most 5 MB + 1 byte whatever Content-Length says; never buffer more than that
         byte[] body;
         try (InputStream in = request.getInputStream()) {
