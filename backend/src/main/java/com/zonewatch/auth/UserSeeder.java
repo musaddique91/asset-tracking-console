@@ -52,7 +52,11 @@ public class UserSeeder implements SmartInitializingSingleton {
         if (props.usersFile() == null || props.usersFile().isBlank()) {
             throw new IllegalStateException("ZW_USERS_FILE is not set: mount the users file and point ZW_USERS_FILE at it");
         }
-        Path path = Path.of(props.usersFile());
+        Path path = Path.of(props.usersFile()).toAbsolutePath();
+        if (!Files.isReadable(path)) {
+            throw new IllegalStateException("users file not found or not readable: " + path
+                    + " (set ZW_USERS_FILE, or start from the directory that holds config/users.json)");
+        }
         JsonNode root = mapper.readTree(Files.readAllBytes(path));
         if (!root.isArray()) {
             throw new IllegalStateException("users file must be a JSON array");
