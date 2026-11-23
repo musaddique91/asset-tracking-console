@@ -14,13 +14,21 @@ export function Login({ onSignedIn }: { onSignedIn(s: Session): void }) {
     setError(null);
     try {
       const r = await api.login(username.trim(), password);
+      if (!r || typeof r.accessToken !== 'string' || !r.user || typeof r.user.role !== 'string') {
+        setError('The server answered, but not with a Zone Watch login response. Is the console pointed at the right backend?');
+        return;
+      }
       if (r.user.role === 'INGEST') {
         setError('The feed account cannot use the console. Sign in as an operator or supervisor.');
         return;
       }
       onSignedIn({ token: r.accessToken, username: r.user.username, role: r.user.role, expiresAt: Date.now() + r.expiresInSec * 1000 });
     } catch (err) {
-      setError(err instanceof ApiError && err.status === 401 ? 'Wrong username or password.' : 'The server cannot be reached. Try again.');
+      if (err instanceof ApiError) {
+        setError(err.status === 401 ? 'Wrong username or password.' : `The server refused the sign-in (${err.code}).`);
+      } else {
+        setError('The server cannot be reached. Try again.');
+      }
     } finally {
       setBusy(false);
     }
