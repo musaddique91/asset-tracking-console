@@ -1,0 +1,7 @@
+# Development only: publishes the database on this machine (loopback only, port 15432: 5432 is often taken by a local PostgreSQL) so a backend started
+# from the IDE can use it. Not part of the bundle.
+#   docker compose -f compose.yaml -f compose.dev.yaml --env-file env/v1.0.0.env up -d db
+services:
+  db:
+    ports:
+      - "127.0.0.1:15432:5432"
