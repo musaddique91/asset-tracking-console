@@ -141,3 +141,15 @@ dialog .actions { display: flex; gap: 8px; justify-content: flex-end; }
   .radar-sweep, .radar-blip { animation: none !important; }
   .radar-blip { opacity: 0.6; }
 }
+
+/* ---- main tabs (Alerts / Zones / Asset) ---- */
+.tablist { display: flex; gap: 2px; border-bottom: 1px solid #2f4357; margin: 0 -14px; padding: 0 14px; position: sticky; top: -10px;
+  background: var(--panel); z-index: 2; }
+.tab { background: none; color: var(--muted); border: 0; border-bottom: 3px solid transparent; border-radius: 6px 6px 0 0;
+  padding: 10px 14px 8px; font-weight: 600; min-height: 40px; display: inline-flex; align-items: center; gap: 6px; max-width: 60%;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tab:hover { color: var(--text); background: var(--panel-2); }
+.tab[aria-selected='true'] { color: var(--text); border-bottom-color: var(--accent); background: var(--panel-2); }
+.tab:focus-visible { outline-offset: -3px; }
+.tab-badge { background: var(--danger); color: #1a0505; border-radius: 10px; padding: 0 7px; font-size: 12px; font-weight: 700; }
+.tabpanel { padding-top: 4px; }

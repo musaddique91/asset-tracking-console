@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { api } from '../api/client';
 import { LiveStream, type ConnectionState } from '../api/stream';
 import type { TrackPoint, Zone } from '../api/types';
@@ -11,6 +11,7 @@ import { Announcer } from './Announcer';
 import { AssetDetail } from './AssetDetail';
 import { Header } from './Header';
 import { PerfMonitor } from './PerfMonitor';
+import { Tabs, panelId, tabId } from './Tabs';
 import { ZoneTable } from './ZoneTable';
 
 type Tab = 'alerts' | 'zones' | 'asset';
@@ -75,6 +76,8 @@ export function Console({ session, onSignOut }: { session: Session; onSignOut(re
   }, [positions]);
 
   const zoneNames = useMemo(() => new Map(zones.map((z) => [z.zoneId, z.name])), [zones]);
+  const activeAlerts = useSyncExternalStore(alerts.subscribe, alerts.getSnapshot).active.length;
+  const P = 'side';
 
   return (
     <div className="console">
@@ -83,18 +86,27 @@ export function Console({ session, onSignOut }: { session: Session; onSignOut(re
       <main className="layout">
         <MapView store={positions} zones={zones} selected={selected} track={track} onSelect={select} onViewport={onViewport} focus={focus} />
         <aside id="side-panel" className="side" aria-label="Operator panel">
-          <nav className="tabs main-tabs" aria-label="Panels">
-            {(['alerts', 'zones', 'asset'] as Tab[]).map((t) => (
-              <button key={t} type="button" aria-pressed={tab === t} onClick={() => setTab(t)}>
-                {t === 'alerts' ? 'Alerts' : t === 'zones' ? 'Zones' : 'Asset'}
-              </button>
-            ))}
-          </nav>
-          <div hidden={tab !== 'alerts'}>
+          <Tabs<Tab>
+            idPrefix={P}
+            label="Operator panels"
+            selected={tab}
+            onSelect={setTab}
+            tabs={[
+              { id: 'alerts', label: 'Alerts', badge: activeAlerts },
+              { id: 'zones', label: 'Zones' },
+              { id: 'asset', label: selected ? `Asset ${selected}` : 'Asset' },
+            ]}
+          />
+          {/* the alert panel stays mounted so its filters, page and messages survive a tab switch */}
+          <div role="tabpanel" id={panelId(P, 'alerts')} aria-labelledby={tabId(P, 'alerts')} hidden={tab !== 'alerts'} className="tabpanel">
             <AlertPanel store={alerts} session={session} zoneNames={zoneNames} onSelectAsset={select} />
           </div>
-          {tab === 'zones' && <ZoneTable onSelectAsset={select} />}
-          {tab === 'asset' && <AssetDetail assetId={selected} store={positions} onSelect={select} onTrack={setTrack} />}
+          <div role="tabpanel" id={panelId(P, 'zones')} aria-labelledby={tabId(P, 'zones')} hidden={tab !== 'zones'} className="tabpanel">
+            {tab === 'zones' && <ZoneTable onSelectAsset={select} />}
+          </div>
+          <div role="tabpanel" id={panelId(P, 'asset')} aria-labelledby={tabId(P, 'asset')} hidden={tab !== 'asset'} className="tabpanel">
+            {tab === 'asset' && <AssetDetail assetId={selected} store={positions} onSelect={select} onTrack={setTrack} />}
+          </div>
           <footer className="side-footer">
             <Announcer store={alerts} />
             <PerfMonitor />
