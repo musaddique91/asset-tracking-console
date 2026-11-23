@@ -1,0 +1,9 @@
+**/node_modules
+**/target
+**/dist
+bundle
+.git
+.idea
+**/.DS_Store
+docs
+pack/*.gz

@@ -1,0 +1,155 @@
+# Zone Watch: database, two API instances (which also serve the console), load balancer on :8080.
+# Image versions and the migration target come from an env file (env/*.env), so INSTALL.md can
+# start any version, or move one instance at a time, with plain docker compose commands.
+name: zonewatch
+
+x-backend: &backend
+  restart: unless-stopped
+  environment: &backend-env
+    ZW_DB_URL: jdbc:postgresql://db:5432/zonewatch
+    ZW_DB_USER: zonewatch
+    ZW_SECRETS_DIR: /run/zw-secrets
+    ZW_USERS_FILE: /run/zw-config/users.json
+    ZW_LOG_FORMAT: logstash
+  volumes:
+    - zw-secrets:/run/zw-secrets:ro
+    - ./config/users.json:/run/zw-config/users.json:ro
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+  healthcheck:
+    test: ["CMD", "/app/bin/zwctl", "health"]
+    interval: 5s
+    timeout: 3s
+    retries: 30
+    start_period: 10s
+  stop_grace_period: 30s
+  mem_limit: 1200m
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+  cap_drop: [ALL]
+
+services:
+  # Generates the database password once, inside the environment. Nothing to configure, nothing committed.
+  secrets-init:
+    image: postgres:16.4-alpine
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        umask 022
+        if [ ! -s /run/zw-secrets/db_password ]; then
+          head -c 48 /dev/urandom | base64 | tr -d '\n/+=' | head -c 40 > /run/zw-secrets/db_password
+          echo "database password generated"
+        fi
+    volumes:
+      - zw-secrets:/run/zw-secrets
+    security_opt:
+      - no-new-privileges:true
+
+  db:
+    image: postgres:16.4-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: zonewatch
+      POSTGRES_USER: zonewatch
+      POSTGRES_PASSWORD_FILE: /run/zw-secrets/db_password
+    command:
+      - postgres
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - max_connections=120
+      - -c
+      - wal_compression=on
+      - -c
+      - max_wal_size=2GB
+      - -c
+      - log_min_duration_statement=500
+      - -c
+      - log_lock_waits=on
+      - -c
+      - timezone=UTC
+    volumes:
+      - zw-db:/var/lib/postgresql/data
+      - zw-secrets:/run/zw-secrets:ro
+    depends_on:
+      secrets-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "zonewatch", "-d", "zonewatch"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    mem_limit: 1500m
+    shm_size: 256m
+    security_opt:
+      - no-new-privileges:true
+
+  # One-shot: applies migrations up to ZW_FLYWAY_TARGET and exits. Serving instances never migrate.
+  migrate:
+    image: zonewatch/app:${ZW_MIGRATE_VERSION:?set by env file}
+    restart: "no"
+    environment:
+      ZW_MODE: migrate
+      ZW_DB_URL: jdbc:postgresql://db:5432/zonewatch
+      ZW_DB_USER: zonewatch
+      ZW_SECRETS_DIR: /run/zw-secrets
+      ZW_FLYWAY_TARGET: ${ZW_FLYWAY_TARGET:?set by env file}
+      ZW_LOG_FORMAT: logstash
+    volumes:
+      - zw-secrets:/run/zw-secrets:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+
+  backend-1:
+    <<: *backend
+    image: zonewatch/app:${ZW_BACKEND_1_VERSION:?set by env file}
+    environment:
+      <<: *backend-env
+      ZW_INSTANCE: backend-1
+
+  backend-2:
+    <<: *backend
+    image: zonewatch/app:${ZW_BACKEND_2_VERSION:?set by env file}
+    environment:
+      <<: *backend-env
+      ZW_INSTANCE: backend-2
+
+  lb:
+    image: nginx:1.27.3-alpine
+    restart: unless-stopped
+    ports:
+      - "${ZW_HTTP_PORT:-8080}:8080"
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      backend-1:
+        condition: service_healthy
+      backend-2:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    mem_limit: 128m
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  zw-db:
+  zw-secrets:
