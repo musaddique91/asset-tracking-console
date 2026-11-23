@@ -12,6 +12,7 @@ import { AssetDetail } from './AssetDetail';
 import { Header } from './Header';
 import { PerfMonitor } from './PerfMonitor';
 import { Tabs, panelId, tabId } from './Tabs';
+import type { Theme } from '../theme';
 import { ZoneTable } from './ZoneTable';
 
 type Tab = 'alerts' | 'zones' | 'asset';
@@ -24,7 +25,14 @@ const WORLD: [number, number, number, number] = [-180, -90, 180, 90];
  *  - UI state (tab, selection, filters, dialogs): React state in the components that own it
  *  - server truth: the API; after every (re)connect the console re-synchronises from it
  */
-export function Console({ session, onSignOut }: { session: Session; onSignOut(reason?: string): void }) {
+interface ConsoleProps {
+  session: Session;
+  onSignOut(reason?: string): void;
+  theme: Theme;
+  onToggleTheme(): void;
+}
+
+export function Console({ session, onSignOut, theme, onToggleTheme }: ConsoleProps) {
   const positions = useMemo(() => new PositionStore(), []);
   const alerts = useMemo(() => new AlertStore(), []);
   const [zones, setZones] = useState<Zone[]>([]);
@@ -82,9 +90,9 @@ export function Console({ session, onSignOut }: { session: Session; onSignOut(re
   return (
     <div className="console">
       <a href="#side-panel" className="skip">Skip to alert panel</a>
-      <Header session={session} connection={conn} assetCount={assetCount} onSignOut={() => onSignOut()} />
+      <Header session={session} connection={conn} assetCount={assetCount} onSignOut={() => onSignOut()} theme={theme} onToggleTheme={onToggleTheme} />
       <main className="layout">
-        <MapView store={positions} zones={zones} selected={selected} track={track} onSelect={select} onViewport={onViewport} focus={focus} />
+        <MapView store={positions} zones={zones} selected={selected} track={track} onSelect={select} onViewport={onViewport} focus={focus} theme={theme} />
         <aside id="side-panel" className="side" aria-label="Operator panel">
           <Tabs<Tab>
             idPrefix={P}

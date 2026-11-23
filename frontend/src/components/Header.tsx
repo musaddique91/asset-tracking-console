@@ -5,15 +5,19 @@ import type { Stats } from '../api/types';
 import type { Session } from '../session';
 import { Radar } from './Radar';
 import { UserMenu } from './UserMenu';
+import { ThemeToggle } from './ThemeToggle';
+import type { Theme } from '../theme';
 
 interface Props {
   session: Session;
   connection: { state: ConnectionState; attempt: number; since: number | null };
   assetCount: number;
   onSignOut(): void;
+  theme: Theme;
+  onToggleTheme(): void;
 }
 
-export function Header({ session, connection, assetCount, onSignOut }: Props) {
+export function Header({ session, connection, assetCount, onSignOut, theme, onToggleTheme }: Props) {
   const [stats, setStats] = useState<Stats | null>(null);
   const [now, setNow] = useState(Date.now());
 
@@ -51,7 +55,10 @@ export function Header({ session, connection, assetCount, onSignOut }: Props) {
         <div><dt>Reports</dt><dd>{stats?.accepted.toLocaleString() ?? '–'}</dd></div>
         <div><dt>Rejected</dt><dd>{stats?.rejected.toLocaleString() ?? '–'}</dd></div>
       </dl>
-      <UserMenu session={session} onSignOut={onSignOut} />
+      <div className="header-actions">
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        <UserMenu session={session} onSignOut={onSignOut} />
+      </div>
     </header>
   );
 }

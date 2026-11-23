@@ -5,6 +5,7 @@ import type { TrackPoint, Zone } from '../api/types';
 import type { PositionStore } from '../state/positions';
 import { wrapLon } from '../state/positions';
 import { graticule, labelPoint, unwrapLine, zonesGeoJson } from './geo';
+import { cssVar, type Theme } from '../theme';
 
 interface Props {
   store: PositionStore;
@@ -15,6 +16,7 @@ interface Props {
   onViewport(bbox: [number, number, number, number]): void;
   /** Changing key re-centres the map on lon/lat (for example when an asset is picked from a list). */
   focus: { lon: number; lat: number; key: number } | null;
+  theme: Theme;
 }
 
 const FLUSH_MS = 250;
@@ -85,6 +87,19 @@ function shipIcon(): IconImage {
   });
 }
 
+/** Map colours come from the theme's CSS variables, so map, legend and page always match. */
+function applyPalette(map: MlMap): void {
+  const v = (name: string) => cssVar(name);
+  map.setPaintProperty('bg', 'background-color', v('--map-bg'));
+  map.setPaintProperty('graticule', 'line-color', v('--map-grid'));
+  map.setPaintProperty('zones-fill', 'fill-color', ['match', ['get', 'cls'], 'RESTRICTED', v('--zone-r-fill'), v('--zone-a-fill')]);
+  map.setPaintProperty('zones-fill', 'fill-opacity', Number(v('--zone-fill-opacity')) || 0.18);
+  map.setPaintProperty('zones-line', 'line-color', ['match', ['get', 'cls'], 'RESTRICTED', v('--zone-r-line'), v('--zone-a-line')]);
+  map.setPaintProperty('track', 'line-color', v('--track'));
+  map.setPaintProperty('assets', 'icon-color', ['case', ['==', ['get', 'k'], 1], v('--sym-air'), v('--sym-surface')]);
+  map.setPaintProperty('selected', 'circle-stroke-color', v('--select'));
+}
+
 function featureCollection(store: PositionStore): GeoJSON.FeatureCollection {
   const features: GeoJSON.Feature[] = new Array(store.size);
   let i = 0;
@@ -98,7 +113,7 @@ function featureCollection(store: PositionStore): GeoJSON.FeatureCollection {
   return { type: 'FeatureCollection', features };
 }
 
-export function MapView({ store, zones, selected, track, onSelect, onViewport, focus }: Props) {
+export function MapView({ store, zones, selected, track, onSelect, onViewport, focus, theme }: Props) {
   const container = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MlMap | null>(null);
   const ready = useRef(false);
@@ -168,6 +183,7 @@ export function MapView({ store, zones, selected, track, onSelect, onViewport, f
       });
       map.on('mouseenter', 'assets', () => (map.getCanvas().style.cursor = 'pointer'));
       map.on('mouseleave', 'assets', () => (map.getCanvas().style.cursor = ''));
+      applyPalette(map);
       ready.current = true;
       map.fire('zw-ready');
     });
@@ -244,6 +260,12 @@ export function MapView({ store, zones, selected, track, onSelect, onViewport, f
     if (ready.current) apply();
     else map.once('zw-ready', apply);
   }, [track]);
+
+  // theme switch: recolour the layers in place (no reload of sources)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map && ready.current) applyPalette(map);
+  }, [theme]);
 
   useEffect(() => {
     if (focus) mapRef.current?.easeTo({ center: [focus.lon, focus.lat], duration: 400 });

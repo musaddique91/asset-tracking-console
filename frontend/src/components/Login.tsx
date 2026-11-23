@@ -2,8 +2,10 @@ import { useState, type FormEvent } from 'react';
 import { ApiError, api } from '../api/client';
 import type { Session } from '../session';
 import { Radar } from './Radar';
+import { ThemeToggle } from './ThemeToggle';
+import type { Theme } from '../theme';
 
-export function Login({ onSignedIn }: { onSignedIn(s: Session): void }) {
+export function Login({ onSignedIn, theme, onToggleTheme }: { onSignedIn(s: Session): void; theme: Theme; onToggleTheme(): void }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +39,7 @@ export function Login({ onSignedIn }: { onSignedIn(s: Session): void }) {
 
   return (
     <main className="login">
+      <ThemeToggle theme={theme} onToggle={onToggleTheme} />
       <Radar size={560} blips className="radar-backdrop" />
       <form onSubmit={submit} aria-labelledby="login-title" noValidate>
         <h1 id="login-title">Zone Watch</h1>

@@ -3,6 +3,7 @@ import { api } from './api/client';
 import { Console } from './components/Console';
 import { Login } from './components/Login';
 import { loadSession, saveSession, type Session } from './session';
+import { useTheme } from './theme';
 
 export function App() {
   const [session, setSession] = useState<Session | null>(() => {
@@ -11,6 +12,7 @@ export function App() {
     return s;
   });
   const [notice, setNotice] = useState<string | null>(null);
+  const [theme, toggleTheme] = useTheme();
 
   const signOut = useCallback((reason?: string) => {
     api.setToken(null);
@@ -28,6 +30,8 @@ export function App() {
       <>
         {notice && <p role="alert" className="notice">{notice}</p>}
         <Login
+          theme={theme}
+          onToggleTheme={toggleTheme}
           onSignedIn={(s) => {
             api.setToken(s.token);
             saveSession(s);
@@ -38,5 +42,5 @@ export function App() {
       </>
     );
   }
-  return <Console session={session} onSignOut={signOut} />;
+  return <Console session={session} onSignOut={signOut} theme={theme} onToggleTheme={toggleTheme} />;
 }
