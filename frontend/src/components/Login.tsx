@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { ApiError, api } from '../api/client';
 import type { Session } from '../session';
+import { Radar } from './Radar';
 
 export function Login({ onSignedIn }: { onSignedIn(s: Session): void }) {
   const [username, setUsername] = useState('');
@@ -36,6 +37,7 @@ export function Login({ onSignedIn }: { onSignedIn(s: Session): void }) {
 
   return (
     <main className="login">
+      <Radar size={560} blips className="radar-backdrop" />
       <form onSubmit={submit} aria-labelledby="login-title" noValidate>
         <h1 id="login-title">Zone Watch</h1>
         <p className="muted">Operator console</p>

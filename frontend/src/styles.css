@@ -109,3 +109,35 @@ dialog .actions { display: flex; gap: 8px; justify-content: flex-end; }
 @media (max-width: 900px) {
   .layout { grid-template-columns: 1fr; grid-template-rows: 55vh auto; }
 }
+
+/* ---- radar (decorative, compositor-only animation) ---- */
+.radar { position: relative; border-radius: 50%; overflow: hidden; flex: none;
+  background: radial-gradient(circle, rgba(32, 201, 120, 0.10) 0%, rgba(8, 30, 22, 0.55) 70%, rgba(8, 30, 22, 0.75) 100%);
+  border: 1px solid rgba(87, 211, 140, 0.55); box-shadow: 0 0 18px rgba(87, 211, 140, 0.18) inset; }
+.radar-rings { position: absolute; inset: 0; border-radius: 50%;
+  background:
+    radial-gradient(circle, transparent 24%, rgba(87, 211, 140, 0.35) 24.5%, transparent 25.5%),
+    radial-gradient(circle, transparent 49%, rgba(87, 211, 140, 0.30) 49.5%, transparent 50.5%),
+    radial-gradient(circle, transparent 74%, rgba(87, 211, 140, 0.25) 74.5%, transparent 75.5%),
+    linear-gradient(rgba(87, 211, 140, 0.25), rgba(87, 211, 140, 0.25)) center / 1px 100% no-repeat,
+    linear-gradient(rgba(87, 211, 140, 0.25), rgba(87, 211, 140, 0.25)) center / 100% 1px no-repeat; }
+.radar-sweep { position: absolute; inset: 0; border-radius: 50%; will-change: transform;
+  background: conic-gradient(from 0deg, rgba(87, 211, 140, 0) 0deg, rgba(87, 211, 140, 0) 290deg,
+    rgba(87, 211, 140, 0.15) 330deg, rgba(120, 255, 175, 0.75) 359deg, rgba(87, 211, 140, 0) 360deg); }
+.radar-on .radar-sweep { animation: radar-spin 4s linear infinite; }
+.radar-off { border-color: rgba(255, 197, 61, 0.7); }
+.radar-off .radar-sweep { opacity: 0.25; }
+.radar-blip { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%;
+  background: #8affc0; box-shadow: 0 0 8px #57d38c; opacity: 0; animation: radar-blip 4s linear infinite; }
+@keyframes radar-spin { to { transform: rotate(360deg); } }
+@keyframes radar-blip { 0% { opacity: 1; transform: scale(1.2); } 60% { opacity: 0.15; transform: scale(1); } 100% { opacity: 0; } }
+
+.radar-mini { border-width: 1px; }
+.login { position: relative; overflow: hidden; }
+.radar-backdrop { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: 0.55; pointer-events: none; }
+.login form { position: relative; z-index: 1; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45); backdrop-filter: blur(2px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-sweep, .radar-blip { animation: none !important; }
+  .radar-blip { opacity: 0.6; }
+}

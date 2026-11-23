@@ -3,6 +3,7 @@ import { api } from '../api/client';
 import type { ConnectionState } from '../api/stream';
 import type { Stats } from '../api/types';
 import type { Session } from '../session';
+import { Radar } from './Radar';
 
 interface Props {
   session: Session;
@@ -38,7 +39,7 @@ export function Header({ session, connection, assetCount, onSignOut }: Props) {
     <header className="topbar">
       <h1>Zone Watch</h1>
       <div className={`conn conn-${connection.state}`} role="status" aria-live="polite">
-        <span className="dot" aria-hidden="true" />
+        <Radar size={22} active={connection.state === 'live'} className="radar-mini" />
         {label}
         {interrupted && <span className="muted"> — reconnecting{seconds > 0 ? ` (${seconds}s)` : ''}. The map and alerts may be out of date.</span>}
       </div>
