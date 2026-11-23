@@ -1,0 +1,112 @@
+[
+ {
+  "username": "feed",
+  "role": "INGEST",
+  "password": "test-feed-pw"
+ },
+ {
+  "username": "sup01",
+  "role": "SUPERVISOR",
+  "password": "test-sup01-pw"
+ },
+ {
+  "username": "op01",
+  "role": "OPERATOR",
+  "password": "test-op01-pw"
+ },
+ {
+  "username": "op02",
+  "role": "OPERATOR",
+  "password": "test-op02-pw"
+ },
+ {
+  "username": "op03",
+  "role": "OPERATOR",
+  "password": "test-op03-pw"
+ },
+ {
+  "username": "op04",
+  "role": "OPERATOR",
+  "password": "test-op04-pw"
+ },
+ {
+  "username": "op05",
+  "role": "OPERATOR",
+  "password": "test-op05-pw"
+ },
+ {
+  "username": "op06",
+  "role": "OPERATOR",
+  "password": "test-op06-pw"
+ },
+ {
+  "username": "op07",
+  "role": "OPERATOR",
+  "password": "test-op07-pw"
+ },
+ {
+  "username": "op08",
+  "role": "OPERATOR",
+  "password": "test-op08-pw"
+ },
+ {
+  "username": "op09",
+  "role": "OPERATOR",
+  "password": "test-op09-pw"
+ },
+ {
+  "username": "op10",
+  "role": "OPERATOR",
+  "password": "test-op10-pw"
+ },
+ {
+  "username": "op11",
+  "role": "OPERATOR",
+  "password": "test-op11-pw"
+ },
+ {
+  "username": "op12",
+  "role": "OPERATOR",
+  "password": "test-op12-pw"
+ },
+ {
+  "username": "op13",
+  "role": "OPERATOR",
+  "password": "test-op13-pw"
+ },
+ {
+  "username": "op14",
+  "role": "OPERATOR",
+  "password": "test-op14-pw"
+ },
+ {
+  "username": "op15",
+  "role": "OPERATOR",
+  "password": "test-op15-pw"
+ },
+ {
+  "username": "op16",
+  "role": "OPERATOR",
+  "password": "test-op16-pw"
+ },
+ {
+  "username": "op17",
+  "role": "OPERATOR",
+  "password": "test-op17-pw"
+ },
+ {
+  "username": "op18",
+  "role": "OPERATOR",
+  "password": "test-op18-pw"
+ },
+ {
+  "username": "op19",
+  "role": "OPERATOR",
+  "password": "test-op19-pw"
+ },
+ {
+  "username": "op20",
+  "role": "OPERATOR",
+  "password": "test-op20-pw"
+ }
+]
