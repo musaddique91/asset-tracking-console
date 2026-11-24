@@ -1,9 +1,11 @@
 # Zone Watch: database, two API instances (which also serve the console), load balancer on :8080.
+# Images are never pulled: they come from the offline bundle (docker load).
 # Image versions and the migration target come from an env file (env/*.env), so INSTALL.md can
 # start any version, or move one instance at a time, with plain docker compose commands.
 name: zonewatch
 
 x-backend: &backend
+  pull_policy: never
   restart: unless-stopped
   environment: &backend-env
     ZW_DB_URL: jdbc:postgresql://db:5432/zonewatch
@@ -36,6 +38,7 @@ services:
   # Generates the database password once, inside the environment. Nothing to configure, nothing committed.
   secrets-init:
     image: postgres:16.4-alpine
+    pull_policy: never
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
@@ -51,6 +54,7 @@ services:
 
   db:
     image: postgres:16.4-alpine
+    pull_policy: never
     restart: unless-stopped
     environment:
       POSTGRES_DB: zonewatch
@@ -91,6 +95,7 @@ services:
   # One-shot: applies migrations up to ZW_FLYWAY_TARGET and exits. Serving instances never migrate.
   migrate:
     image: zonewatch/app:${ZW_MIGRATE_VERSION:?set by env file}
+    pull_policy: never
     restart: "no"
     environment:
       ZW_MODE: migrate
@@ -127,6 +132,7 @@ services:
 
   lb:
     image: nginx:1.27.3-alpine
+    pull_policy: never
     restart: unless-stopped
     ports:
       - "${ZW_HTTP_PORT:-8080}:8080"
