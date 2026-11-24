@@ -304,38 +304,43 @@ PostgreSQL-specific parts and their equivalents:
 **Total: about __ hours** over __ days (fill in), with Claude Code as a pair programmer throughout
 (see section 11). What I did myself:
 
-1. **Read the brief and the candidate pack** and checked first that AI-assisted development was allowed
-   (section 12: permitted with disclosure) before starting.
-2. **Asked for a written plan first** ([docs/PLAN.md](docs/PLAN.md)) and reviewed it before any code was
+1. **Started without AI.** Not yet aware that AI-assisted development was allowed, I read the brief and
+   the pack and began coding by hand: created the Spring Boot project (Java 21, Maven, PostgreSQL) and
+   wrote Spring Security with JWT bearer authentication, user seeding from the users file, the
+   `/health` endpoint and the `/api/v1/auth/login` API.
+2. **Checked the brief on AI use** (section 12: permitted with disclosure) and from then on worked with
+   Claude Code, starting from my project.
+3. **Asked for a written plan first** ([docs/PLAN.md](docs/PLAN.md)) and reviewed it before any code was
    written: technology choices, schema, how each rule is enforced, delivery and CR-1 approach.
-3. **Designed with Claude Code and challenged the design:** asked why plain JDBC instead of Spring Data JPA
+4. **Designed with Claude Code and challenged the design:** asked why plain JDBC instead of Spring Data JPA
    (kept JDBC for the set-based ingest after weighing R1/R6 and throughput), URL rules in the security
    configuration versus `@PreAuthorize` on controllers, whether multipart could be used for the batch
    endpoint (no: the contract fixes `application/x-ndjson`), and whether `IngestService` should use more
    threads (no: parallelism comes from concurrent requests; threads inside a batch would break its
    atomicity and lock ordering).
-4. **Reviewed the code and asked for changes**, for example replacing the hand-written `Content-Type`
+5. **Reviewed the code and asked for changes**, for example replacing the hand-written `Content-Type`
    check in `IngestController` with `consumes = "application/x-ndjson"`.
-5. **Ran the backend and the console myself** from IntelliJ against a local PostgreSQL and with the Vite
+6. **Ran the backend and the console myself** from IntelliJ against a local PostgreSQL and with the Vite
    dev server; found that the console was talking to an old backend still running on port 8080 and got
    the login error message corrected; moved developer settings out of the committed configuration.
-6. **Tested the UI and asked for design changes:** distinct aircraft and ship symbols for AIR and SURFACE
+7. **Tested the UI and asked for design changes:** distinct aircraft and ship symbols for AIR and SURFACE
    assets (with a legend), Alerts / Zones / Asset as real tabs, a user menu with sign-out in a dropdown,
    a light theme next to the dark one, and the radar animation on the sign-in screen and as the live
    indicator.
-7. **Checked the work against the brief** section by section (frontend expectations, air-gapped delivery)
+8. **Checked the work against the brief** section by section (frontend expectations, air-gapped delivery)
    and had a requirements tracker written ([docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)); decided what to
    leave out (a global activity log, Kubernetes manifests).
-8. **Kept secrets out of the repository:** moved the users file off the classpath (it would have been
+9. **Kept secrets out of the repository:** moved the users file off the classpath (it would have been
    packed into the image), and had a local database password that had slipped into a commit removed
    from the git history before the first push.
-9. **Handled the delivery:** created the public repository with a neutral name, pushed history and tags,
+10. **Handled the delivery:** created the public repository with a neutral name, pushed history and tags,
    and published release v1.1.0 with the offline bundle and `SHA256SUMS`.
-10. **Network-off test** of the bundle on my own machine: __ (fill in result).
+11. **Network-off test** of the bundle on my own machine: __ (fill in result).
 
-Split of the work: the code, tests and documents were generated with Claude Code; the requirements
-reading, design decisions, reviews, UI testing, change requests and delivery decisions were mine, and I
-can explain every part of the submission.
+Split of the work: the first backend (project, security, health and login) was written by hand; after
+that the code, tests and documents were generated with Claude Code, and the requirements reading, design
+decisions, reviews, UI testing, change requests and delivery decisions were mine. I can explain every
+part of the submission.
 
 ---
 
@@ -345,6 +350,14 @@ Tools: **Claude Code** (Anthropic, Claude Opus model) in the desktop app, workin
 reading the brief and the pack, analysing the data, writing code, tests and documents, running the
 build, tests, containers and the replay, and checking the console in a browser. Every change was
 reviewed, run and tested; I can explain each part.
+
+Starting point: before I knew AI assistance was allowed, I had written a first backend by hand
+(Spring Boot project, Spring Security with JWT, users seeded from a JSON file, `/health`, login). The
+agent reviewed it against the brief and the contract, and it was reworked: Spring Data JPA with
+`ddl-auto` replaced by Flyway migrations and JDBC (house convention: the ORM never creates schema); the
+JWT secret and the users file, which were committed, moved out of the repository; the login answer
+changed to the contract's shape; the token now carries the role so the ingest path needs no database read
+per request. The repository history starts after that rework.
 
 Instructions given to the agent: the brief, the candidate pack, and direction in conversation; the
 agent wrote [docs/PLAN.md](docs/PLAN.md) first and followed it. No separate rules file was used.
