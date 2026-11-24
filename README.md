@@ -335,7 +335,9 @@ programmer (see section 11). What I did myself:
    from the git history before the first push.
 10. **Handled the delivery:** created the public repository with a neutral name, pushed history and tags,
    and published release v1.1.0 with the offline bundle and `SHA256SUMS`.
-11. **Network-off test** of the bundle on my own machine: result to be added after the test.
+11. **Network-off test** of the bundle on my own machine: release files downloaded into an empty folder,
+    network switched off, INSTALL.md (a) followed with a different users file. The system started and
+    worked: sign-in, live map and alerts with the feed replayed, claim and resolve.
 
 Split of the work: the first backend (project, security, health and login) was written by hand; after
 that the code, tests and documents were generated with Claude Code, and the requirements reading, design

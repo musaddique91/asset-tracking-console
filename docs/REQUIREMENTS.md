@@ -45,7 +45,7 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 | Req | Status | Gap |
 |---|---|---|
 | One command: DB, 2 instances, LB, console; API on 8080 | ✅ | |
-| No external calls (backend + browser) | ✅ | network-off run still to do (see bundle test) |
+| No external calls (backend + browser) | ✅ | verified with the network switched off |
 | Offline bundle: `docker save` of v1.0.0 **and** v1.1.0, compose, templates, INSTALL.md; script in repo | ✅ | `scripts/build-bundle.sh` → `bundle/` (2 × 247 MB + deploy + SHA256SUMS) |
 | linux/amd64, 2 CPU / 6 GB / 20 GB | ⚠️ | amd64 ✅, memory ≈ 4 GB ✅; not run on 2 CPUs |
 | INSTALL.md (a) v1.1.0 ≤ 5 commands (b) v1.0.0 (c) rolling upgrade; users file; console address | ✅ | |
@@ -54,7 +54,7 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 | Observability: health, structured logs, metrics | ✅ | |
 | Runbook (one page) | ✅ | `docs/RUNBOOK.md` |
 | Building inside the air gap (half page) | ✅ | `docs/AIRGAP-BUILD.md` |
-| **Test the bundle**: no local images, network off, different users file | ✅ except network off | no local images + different users file: (a), (b)→(c) under traffic, 0 failed; **network off: candidate's machine** |
+| **Test the bundle**: no local images, network off, different users file | ✅ | no local images + different users file: (a), (b)→(c) under traffic, 0 failed; network off on the candidate's machine: started and worked |
 
 ## Section 8 — CR-1 (v1.1.0)
 
