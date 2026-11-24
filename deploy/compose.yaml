@@ -116,6 +116,35 @@ services:
       - no-new-privileges:true
     cap_drop: [ALL]
 
+  # CR-1 one-shot job (v1.1.0 image): fills report.source_type for rows written before the upgrade.
+  # Not started by "up"; run with: docker compose ... run --rm backfill
+  backfill:
+    image: zonewatch/app:${ZW_MIGRATE_VERSION:?set by env file}
+    pull_policy: never
+    profiles: ["tools"]
+    restart: "no"
+    environment:
+      ZW_MODE: backfill-source-type
+      ZW_DB_URL: jdbc:postgresql://db:5432/zonewatch
+      ZW_DB_USER: zonewatch
+      ZW_SECRETS_DIR: /run/zw-secrets
+      ZW_LOG_FORMAT: logstash
+      ZW_DB_POOL_SIZE: "2"
+      ZW_BACKFILL_BATCH: ${ZW_BACKFILL_BATCH:-2000}
+      ZW_BACKFILL_PAUSE: ${ZW_BACKFILL_PAUSE:-PT0.05S}
+      ZW_BACKFILL_FROM: ${ZW_BACKFILL_FROM:-}
+    volumes:
+      - zw-secrets:/run/zw-secrets:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+
   backend-1:
     <<: *backend
     image: zonewatch/app:${ZW_BACKEND_1_VERSION:?set by env file}
