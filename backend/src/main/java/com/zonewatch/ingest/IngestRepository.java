@@ -40,14 +40,16 @@ public class IngestRepository {
         }
         return jdbc.execute((ConnectionCallback<Set<String>>) c -> {
             try (PreparedStatement ps = c.prepareStatement("""
-                    INSERT INTO report (report_id, asset_id, kind, observed_at, lat, lon, speed_kn, heading_deg, source)
-                    SELECT r, a, k, o::timestamptz, la, lo, s, h, src
-                    FROM unnest(?::text[], ?::text[], ?::text[], ?::text[], ?::float8[], ?::float8[], ?::float8[], ?::float8[], ?::text[])
-                         AS u(r, a, k, o, la, lo, s, h, src)
+                    INSERT INTO report (report_id, asset_id, kind, observed_at, lat, lon, speed_kn, heading_deg, source, source_type)
+                    SELECT r, a, k, o::timestamptz, la, lo, s, h, src, st
+                    FROM unnest(?::text[], ?::text[], ?::text[], ?::text[], ?::float8[], ?::float8[], ?::float8[], ?::float8[], ?::text[], ?::text[])
+                         AS u(r, a, k, o, la, lo, s, h, src, st)
                     ON CONFLICT (report_id) DO NOTHING
                     RETURNING report_id
                     """)) {
                 bindReports(c, ps, reports);
+                // CR-1: v1.1.0 writes the source type itself; the V2 trigger fills it only for v1.0.0 writers
+                ps.setArray(10, c.createArrayOf("text", reports.stream().map(r -> SourceType.of(r.source()).name()).toArray()));
                 Set<String> inserted = new HashSet<>();
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {

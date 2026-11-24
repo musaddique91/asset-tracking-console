@@ -1,6 +1,8 @@
 package com.zonewatch.asset;
 
+import com.zonewatch.common.ApiException;
 import com.zonewatch.common.Params;
+import com.zonewatch.ingest.SourceType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,8 +35,20 @@ public class AssetController {
     public AssetService.Page<TrackPoint> track(@PathVariable String assetId,
                                                @RequestParam(required = false) String from,
                                                @RequestParam(required = false) String to,
+                                               @RequestParam(required = false) String sourceType,
                                                @RequestParam(required = false) String limit) {
-        return assets.track(assetId, Params.instant("from", from), Params.instant("to", to),
+        return assets.track(assetId, Params.instant("from", from), Params.instant("to", to), sourceType(sourceType),
                 Params.limit(limit, 500, 5000));
+    }
+
+    private static SourceType sourceType(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return SourceType.valueOf(raw.trim());
+        } catch (IllegalArgumentException e) {
+            throw ApiException.validation("sourceType must be SATELLITE, GROUND, MOBILE or UNKNOWN");
+        }
     }
 }
