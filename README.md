@@ -210,8 +210,10 @@ Limit -> Sort (asset_id)
 Execution Time: 1.418 ms   (350 rows)
 ```
 
-**Console.** With 3,000 assets at 5x: panning and zooming produced no main-thread task over 50 ms;
-the only long tasks were 149 ms and 178 ms during initial load (map creation and the first snapshot).
+**Console.** With 3,000 assets at 5x, 45 s of continuous panning and zooming (79 drags, 79 zoom
+gestures), Chrome performance trace: 43,335 main-thread tasks, **longest 28.9 ms, none over 50 ms**
+(target: none over 200 ms) — [docs/evidence/responsiveness-5x.md](docs/evidence/responsiveness-5x.md).
+At initial load, two tasks of 149 ms and 178 ms (map creation and the first snapshot).
 The console shows its own long-task meter (bottom of the side panel). Only the console's own origin
 is requested (checked with the resource timing list). After the load balancer was paused for 33 s the
 header showed "Live updates interrupted", then "Live" again without a reload, and the active-alert

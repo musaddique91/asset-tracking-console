@@ -23,3 +23,6 @@ backend/config/*
 *.tsbuildinfo
 # but keep the example for IDE runs
 !backend/config/local.yml.example
+
+# raw performance traces (large; summary in docs/evidence/responsiveness-5x.md)
+docs/evidence/*.json.gz
