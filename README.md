@@ -301,8 +301,8 @@ PostgreSQL-specific parts and their equivalents:
 
 ## 10. Actual effort
 
-**Total: about __ hours** over __ days (fill in), with Claude Code as a pair programmer throughout
-(see section 11). What I did myself:
+**Total: about __ hours** over __ days (fill in): the first backend by hand, then Claude Code as a pair
+programmer (see section 11). What I did myself:
 
 1. **Started without AI.** Not yet aware that AI-assisted development was allowed, I read the brief and
    the pack and began coding by hand: created the Spring Boot project (Java 21, Maven, PostgreSQL) and
