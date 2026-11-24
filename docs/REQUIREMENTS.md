@@ -92,8 +92,8 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 | Public GitHub repo, neutral name/description, full history, tags | ❌ candidate's action (nothing pushed) |
 | Release v1.1.0 with bundle + `SHA256SUMS`, files < 2 GB | ❌ |
 | README: run online/offline, architecture + data flow, rule table, 5 decisions + rejected alternatives, data findings, evidence, MariaDB note, limitations, **actual effort**, **AI disclosure (≥ 3 cases)** | ✅ except **actual effort** (candidate fills in) |
-| Tests + command + report/console output | ⚠️ tests ✅; saved report for README ❌ |
-| Source builds from a clean checkout | ⚠️ to verify with a fresh clone |
+| Tests + command + report/console output | ✅ commands in README §1; reports in `backend/target/*-reports` after a run |
+| Source builds from a clean checkout | ✅ fresh clone: `./mvnw verify` 101 tests pass; `npm ci`, typecheck, tests, build pass |
 
 ## Open decisions
 
