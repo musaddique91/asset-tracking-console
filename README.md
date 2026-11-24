@@ -301,7 +301,7 @@ PostgreSQL-specific parts and their equivalents:
 
 ## 10. Actual effort
 
-**Total: about __ hours** over __ days (fill in): the first backend by hand, then Claude Code as a pair
+**Total: about 6 hours** over 4 days: the first backend by hand, then Claude Code as a pair
 programmer (see section 11). What I did myself:
 
 1. **Started without AI.** Not yet aware that AI-assisted development was allowed, I read the brief and
@@ -335,7 +335,7 @@ programmer (see section 11). What I did myself:
    from the git history before the first push.
 10. **Handled the delivery:** created the public repository with a neutral name, pushed history and tags,
    and published release v1.1.0 with the offline bundle and `SHA256SUMS`.
-11. **Network-off test** of the bundle on my own machine: __ (fill in result).
+11. **Network-off test** of the bundle on my own machine: result to be added after the test.
 
 Split of the work: the first backend (project, security, health and login) was written by hand; after
 that the code, tests and documents were generated with Claude Code, and the requirements reading, design
