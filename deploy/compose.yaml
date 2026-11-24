@@ -145,12 +145,17 @@ services:
       - no-new-privileges:true
     cap_drop: [ALL]
 
+  # Fixed addresses: an instance recreated during a rolling upgrade comes back on the same address,
+  # so the load balancer can route to it the moment it is healthy (no DNS re-resolution race).
   backend-1:
     <<: *backend
     image: zonewatch/app:${ZW_BACKEND_1_VERSION:?set by env file}
     environment:
       <<: *backend-env
       ZW_INSTANCE: backend-1
+    networks:
+      default:
+        ipv4_address: ${ZW_NET_PREFIX:-10.213.42}.11
 
   backend-2:
     <<: *backend
@@ -158,6 +163,9 @@ services:
     environment:
       <<: *backend-env
       ZW_INSTANCE: backend-2
+    networks:
+      default:
+        ipv4_address: ${ZW_NET_PREFIX:-10.213.42}.12
 
   lb:
     image: nginx:1.27.3-alpine
@@ -184,6 +192,15 @@ services:
     read_only: true
     security_opt:
       - no-new-privileges:true
+
+# Internal network. Fixed addresses (.11, .12) are in the lower half; every other container gets one
+# from the upper half (ip_range), so they never collide. Set ZW_NET_PREFIX if 10.213.42.0/24 is taken (outside Docker's default address pools).
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: ${ZW_NET_PREFIX:-10.213.42}.0/24
+          ip_range: ${ZW_NET_PREFIX:-10.213.42}.128/25
 
 volumes:
   zw-db:
