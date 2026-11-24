@@ -11,7 +11,8 @@ offline bundle of container images.
 - **Delivery**: Docker Compose — database, two API instances, nginx load balancer on :8080 (`deploy/`)
 
 Documents: [INSTALL.md](INSTALL.md) · [docs/RUNBOOK.md](docs/RUNBOOK.md) ·
-[docs/AIRGAP-BUILD.md](docs/AIRGAP-BUILD.md) · [docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) (status
+[docs/AIRGAP-BUILD.md](docs/AIRGAP-BUILD.md) · [docs/CR-1.md](docs/CR-1.md) (v1.1.0 change record) ·
+[docs/REQUIREMENTS.md](docs/REQUIREMENTS.md) (status
 of every requirement) · [docs/PLAN.md](docs/PLAN.md) · contract: [pack/openapi.yaml](pack/openapi.yaml)
 
 ---
@@ -51,7 +52,7 @@ FEED_PASSWORD='…' python3 pack/replay.py --base-url http://localhost:8080 --fi
 ### Tests
 
 ```bash
-cd backend && ./mvnw verify        # 45 unit + 42 integration tests; needs Docker (Testcontainers PostgreSQL)
+cd backend && ./mvnw verify        # 56 unit + 45 integration tests; needs Docker (Testcontainers PostgreSQL)
 cd frontend && npm test            # unit tests (merge rules, antimeridian helpers)
 cd frontend && npm run typecheck   # TypeScript strict
 ```
@@ -222,11 +223,34 @@ summarised at most every 10 s with an off switch, a lost race announced with `ro
 kind by shape and colour, reduced motion respected, and the **Zones** tab as the non-map view of which
 assets are inside which zone.
 
-**Tests.** `./mvnw verify`: 45 unit + 42 integration tests, all passing.
+**Tests.** `./mvnw verify`: 56 unit + 45 integration tests, all passing.
+
+**Rolling upgrade v1.0.0 → v1.1.0 under traffic** (CR-1, see below): **35,115 requests, 0 failed**.
 
 ---
 
-## 7. Design on another database (MariaDB / MySQL)
+## 7. Version 1.1.0 — change request CR-1
+
+Every report gets `source_type` (SAT → SATELLITE, GND → GROUND, MOB → MOBILE, else UNKNOWN); the
+track returns it as `sourceType` and filters on `?sourceType=`; the console's asset detail shows it;
+`openapi.yaml` is 1.1.0. Delivered against a live database with an **expand → backfill → contract**
+migration so v1.0.0 and v1.1.0 run side by side with no long lock:
+
+- `V2` adds a nullable column, the derivation function, a `BEFORE INSERT` trigger (fills the value for
+  v1.0.0 writers) and `NOT VALID` checks — catalogue changes only, guarded by `lock_timeout`;
+- instances are replaced one at a time;
+- `docker compose run --rm backfill` fills old rows in throttled keyset batches (resumable);
+- `V3` validates without blocking writes; `V4` sets `NOT NULL` without a scan.
+
+Rehearsed on a loaded v1.0.0 stack with mixed traffic: 35,115 requests, 0 failed; backfill ≈ 33,000
+rows/s with its default throttle (≈ 4–8 h for 500 million rows). Steps, locks, verification, rollback
+and the backfill plan: [docs/CR-1.md](docs/CR-1.md). Commands: [INSTALL.md](INSTALL.md) (c).
+Test: `Cr1MigrationIT` runs the whole sequence on a v1.0.0 database, including v1.0.0 writes after the
+last step (the rollback path). Traffic generator: `scripts/upgrade_traffic.py`.
+
+---
+
+## 8. Design on another database (MariaDB / MySQL)
 
 PostgreSQL-specific parts and their equivalents:
 
@@ -246,7 +270,7 @@ PostgreSQL-specific parts and their equivalents:
 
 ---
 
-## 8. Limitations and incomplete areas
+## 9. Limitations and incomplete areas
 
 - **Live stream window.** A change whose transaction commits more than 2 s after it was written
   would not be pushed; the next change of that asset or alert, or a reconnect, corrects the console.
@@ -261,17 +285,19 @@ PostgreSQL-specific parts and their equivalents:
 - **No TLS** between browser and load balancer: inside an air-gapped site it would be terminated by
   the site's own proxy or added to nginx with a site certificate.
 - **No rate limiting** of login attempts.
+- **CR-1 trigger stays.** The trigger that fills `source_type` for v1.0.0 writers is kept after the
+  upgrade (it is what makes a rollback to v1.0.0 safe); a later release can drop it once no v1.0.0 can return.
 - **Not done (optional):** Kubernetes manifests, CI pipeline, basemap.
 
 ---
 
-## 9. Actual effort
+## 10. Actual effort
 
 _To be completed by the candidate: hours spent, and on what._
 
 ---
 
-## 10. AI-assisted development
+## 11. AI-assisted development
 
 Tools: **Claude Code** (Anthropic, Claude Opus model) in the desktop app, working in this repository:
 reading the brief and the pack, analysing the data, writing code, tests and documents, running the

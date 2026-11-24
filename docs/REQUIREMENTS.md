@@ -48,7 +48,7 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 | No external calls (backend + browser) | ✅ | network-off run still to do (see bundle test) |
 | Offline bundle: `docker save` of v1.0.0 **and** v1.1.0, compose, templates, INSTALL.md; script in repo | ❌ | script written, never run; v1.1.0 not built |
 | linux/amd64, 2 CPU / 6 GB / 20 GB | ⚠️ | amd64 ✅, memory ≈ 4 GB ✅; not run on 2 CPUs |
-| INSTALL.md (a) v1.1.0 ≤ 5 commands (b) v1.0.0 (c) rolling upgrade; users file; console address | ⚠️ | (b) drafted; (a), (c) need CR-1; deploy archive name to align with script |
+| INSTALL.md (a) v1.1.0 ≤ 5 commands (b) v1.0.0 (c) rolling upgrade; users file; console address | ✅ | |
 | Least privilege | ✅ | |
 | Config and secrets at deploy time | ✅ | |
 | Observability: health, structured logs, metrics | ✅ | |
@@ -60,13 +60,13 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 
 | Req | Status |
 |---|---|
-| `source_type` stored, mandatory for old and new rows (SAT/GND/MOB/UNKNOWN) | ❌ |
-| Track returns `sourceType`, accepts `?sourceType=` | ❌ (console already shows it when present) |
-| Asset detail shows it | ⚠️ ready, needs the API field |
-| openapi.yaml → 1.1.0 | ❌ |
-| Migration scripts: expand / throttled backfill / validate / contract, no long lock, rollback at every step | ❌ |
-| `docs/CR-1.md` (≤ 2 pages): steps, locks, verification, rollback, preconditions, 500 M backfill time, throttling | ❌ |
-| INSTALL upgrade commands match the change record; zero failed requests under traffic | ❌ |
+| `source_type` stored, mandatory for old and new rows (SAT/GND/MOB/UNKNOWN) | ✅ V2–V4, backfill job, `Cr1MigrationIT` |
+| Track returns `sourceType`, accepts `?sourceType=` | ✅ `SourceTypeIT` |
+| Asset detail shows it | ✅ |
+| openapi.yaml → 1.1.0 | ✅ |
+| Migration scripts: expand / throttled backfill / validate / contract, no long lock, rollback at every step | ✅ |
+| `docs/CR-1.md` (≤ 2 pages): steps, locks, verification, rollback, preconditions, 500 M backfill time, throttling | ✅ |
+| INSTALL upgrade commands match the change record; zero failed requests under traffic | ✅ rehearsed: 35,115 requests, 0 failed (with local images; repeat from the bundle) |
 
 ## Section 9 — technology and house conventions
 
@@ -81,9 +81,9 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 | Config/secrets from environment or mounted files | ✅ (fixed in b5e9883) |
 | JSON logs with request id; X-Request-Id echoed; no credentials in logs | ✅ |
 | Tests for every rule incl. parallel | ✅ |
-| Small commits, tags v1.0.0 / v1.1.0 | ⚠️ commits ✅, **tags ❌** |
+| Small commits, tags v1.0.0 / v1.1.0 | ✅ |
 | Frontend strict, no `any`, no other host | ✅ |
-| MariaDB note (½ page) in README | ❌ |
+| MariaDB note (½ page) in README | ✅ |
 
 ## Sections 10–12 — submission
 
@@ -91,7 +91,7 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 |---|---|
 | Public GitHub repo, neutral name/description, full history, tags | ❌ candidate's action (nothing pushed) |
 | Release v1.1.0 with bundle + `SHA256SUMS`, files < 2 GB | ❌ |
-| README: run online/offline, architecture + data flow, rule table, 5 decisions + rejected alternatives, data findings, evidence, MariaDB note, limitations, **actual effort**, **AI disclosure (≥ 3 cases)** | ❌ (effort: candidate fills in) |
+| README: run online/offline, architecture + data flow, rule table, 5 decisions + rejected alternatives, data findings, evidence, MariaDB note, limitations, **actual effort**, **AI disclosure (≥ 3 cases)** | ✅ except **actual effort** (candidate fills in) |
 | Tests + command + report/console output | ⚠️ tests ✅; saved report for README ❌ |
 | Source builds from a clean checkout | ⚠️ to verify with a fresh clone |
 
