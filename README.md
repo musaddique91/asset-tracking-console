@@ -301,7 +301,41 @@ PostgreSQL-specific parts and their equivalents:
 
 ## 10. Actual effort
 
-_To be completed by the candidate: hours spent, and on what._
+**Total: about __ hours** over __ days (fill in), with Claude Code as a pair programmer throughout
+(see section 11). What I did myself:
+
+1. **Read the brief and the candidate pack** and checked first that AI-assisted development was allowed
+   (section 12: permitted with disclosure) before starting.
+2. **Asked for a written plan first** ([docs/PLAN.md](docs/PLAN.md)) and reviewed it before any code was
+   written: technology choices, schema, how each rule is enforced, delivery and CR-1 approach.
+3. **Designed with Claude Code and challenged the design:** asked why plain JDBC instead of Spring Data JPA
+   (kept JDBC for the set-based ingest after weighing R1/R6 and throughput), URL rules in the security
+   configuration versus `@PreAuthorize` on controllers, whether multipart could be used for the batch
+   endpoint (no: the contract fixes `application/x-ndjson`), and whether `IngestService` should use more
+   threads (no: parallelism comes from concurrent requests; threads inside a batch would break its
+   atomicity and lock ordering).
+4. **Reviewed the code and asked for changes**, for example replacing the hand-written `Content-Type`
+   check in `IngestController` with `consumes = "application/x-ndjson"`.
+5. **Ran the backend and the console myself** from IntelliJ against a local PostgreSQL and with the Vite
+   dev server; found that the console was talking to an old backend still running on port 8080 and got
+   the login error message corrected; moved developer settings out of the committed configuration.
+6. **Tested the UI and asked for design changes:** distinct aircraft and ship symbols for AIR and SURFACE
+   assets (with a legend), Alerts / Zones / Asset as real tabs, a user menu with sign-out in a dropdown,
+   a light theme next to the dark one, and the radar animation on the sign-in screen and as the live
+   indicator.
+7. **Checked the work against the brief** section by section (frontend expectations, air-gapped delivery)
+   and had a requirements tracker written ([docs/REQUIREMENTS.md](docs/REQUIREMENTS.md)); decided what to
+   leave out (a global activity log, Kubernetes manifests).
+8. **Kept secrets out of the repository:** moved the users file off the classpath (it would have been
+   packed into the image), and had a local database password that had slipped into a commit removed
+   from the git history before the first push.
+9. **Handled the delivery:** created the public repository with a neutral name, pushed history and tags,
+   and published release v1.1.0 with the offline bundle and `SHA256SUMS`.
+10. **Network-off test** of the bundle on my own machine: __ (fill in result).
+
+Split of the work: the code, tests and documents were generated with Claude Code; the requirements
+reading, design decisions, reviews, UI testing, change requests and delivery decisions were mine, and I
+can explain every part of the submission.
 
 ---
 
