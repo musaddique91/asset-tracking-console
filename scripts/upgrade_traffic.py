@@ -47,7 +47,9 @@ def record(kind, ok, detail=None):
         s = stats.setdefault(kind, [0, 0])
         s[0 if ok else 1] += 1
         if not ok and len(failures) < 50:
-            failures.append("%s %s %s" % (datetime.now().strftime("%H:%M:%S"), kind, detail))
+            line = "%s %s %s" % (datetime.now().strftime("%H:%M:%S.%f")[:12], kind, detail)
+            failures.append(line)
+            print("  FAILED", line, flush=True)
 
 
 def loop(kind, token, make):

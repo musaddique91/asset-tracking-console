@@ -225,7 +225,13 @@ assets are inside which zone.
 
 **Tests.** `./mvnw verify`: 56 unit + 45 integration tests, all passing.
 
-**Rolling upgrade v1.0.0 → v1.1.0 under traffic** (CR-1, see below): **35,115 requests, 0 failed**.
+**Rolling upgrade v1.0.0 → v1.1.0 under traffic** (CR-1, see below), from the offline bundle with a
+different users file, the six INSTALL (c) commands run back to back: **0 failed requests**; plus 5 cycles of
+replacing both instances back to back under traffic: 0 failed. (An earlier run exposed a load-balancer race,
+fixed — see section 11, case 6.)
+
+**Accessibility audit.** Lighthouse accessibility **100** on the sign-in page and on the signed-in
+console in both themes; reports in `docs/evidence/`.
 
 ---
 
@@ -325,6 +331,14 @@ Cases where generated output was wrong, unsafe or not good enough:
 5. **A 413 the client could not read.** Rejecting a large body by `Content-Length` before reading it
    made Tomcat close the connection; the client saw a broken response instead of the problem body.
    Found by the contract test; fixed by a bounded read of at most 5 MB + 1 byte.
-6. **Theme colours one step behind.** The map read its colours in an effect that ran before the page's
+6. **A rolling upgrade that dropped requests.** The first rehearsal of the upgrade passed with 0 failed
+   requests, but repeating it from the offline bundle gave 227 failures in a few seconds. Cause: a
+   recreated instance got a new IP address, and nginx (which re-resolved names every 2 s and took a failed
+   instance out for 3 s) had no usable instance when the second one was stopped right after the first
+   came back. Found by repeating the test with the steps back to back and reading nginx's own log
+   (`upstream: "backends"`); fixed with fixed instance addresses on the compose network, no re-resolution
+   and `max_fails=0`, then verified with 5 cycles of back-to-back replacement under traffic: 0 failures.
+   Lesson kept: one clean run of a race is not evidence.
+7. **Theme colours one step behind.** The map read its colours in an effect that ran before the page's
    theme attribute changed (child effects run first). Found by switching themes in the browser; fixed
    by applying the theme synchronously.

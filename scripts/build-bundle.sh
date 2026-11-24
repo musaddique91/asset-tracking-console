@@ -27,7 +27,7 @@ STAGE=$(mktemp -d)
 git archive v1.1.0 deploy INSTALL.md docs/RUNBOOK.md docs/CR-1.md pack/openapi.yaml | tar -x -C "$STAGE"
 mkdir -p "$STAGE/zonewatch/docs"
 cp -R "$STAGE/deploy/." "$STAGE/zonewatch/"
-rm -f "$STAGE/zonewatch/zwctl"
+rm -f "$STAGE/zonewatch/zwctl" "$STAGE/zonewatch/compose.dev.yaml"
 cp "$STAGE/INSTALL.md" "$STAGE/zonewatch/INSTALL.md"
 cp "$STAGE/docs/RUNBOOK.md" "$STAGE/docs/CR-1.md" "$STAGE/pack/openapi.yaml" "$STAGE/zonewatch/docs/"
 tar -C "$STAGE" -czf "$OUT/zonewatch-deploy-1.1.0.tar.gz" zonewatch

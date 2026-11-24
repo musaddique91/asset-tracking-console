@@ -37,7 +37,7 @@ Compose stack on a laptop (linux/amd64 images under emulation), 410,000 reports 
 
 | Step | Duration | Requests during the whole upgrade |
 |---|---|---|
-| 1 V2 expand | 7.8 s (container start included; DDL itself < 50 ms) | **35,115 requests, 0 failed** |
+| 1 V2 expand | 7.8 s (container start included; DDL itself < 50 ms) | **35,115 requests, 0 failed**; repeated from the offline bundle with the steps back to back: 0 failed |
 | 2 backend-1 | 11.4 s until healthy | (ingest 8,885 · viewport 10,337 · track 5,649 · alerts 5,707 · stats 5,501) |
 | 3 backend-2 | 11.4 s until healthy | |
 | 4 backfill | 27 s for 888,213 keys scanned / 409,962 filled — **≈ 33,000 rows/s** with the default throttle | |
