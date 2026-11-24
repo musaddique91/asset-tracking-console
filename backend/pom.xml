@@ -13,7 +13,7 @@
 
     <groupId>com.zonewatch</groupId>
     <artifactId>zone-watch</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>zone-watch</name>
     <description>Position feed ingest, restricted-zone alerts and operator workflow</description>
 

@@ -1,9 +1,13 @@
 openapi: 3.0.3
 info:
   title: Zone Watch API (fixed contract)
-  version: 1.0.0
+  version: 1.1.0
   description: |
     Fixed external contract for the Zone Watch software engineering assessment.
+
+    1.1.0 (CR-1): every track point carries sourceType, derived from source by prefix
+    (SAT -> SATELLITE, GND -> GROUND, MOB -> MOBILE, anything else or no source -> UNKNOWN), and
+    GET /api/v1/assets/{assetId}/track accepts ?sourceType= to return only points of that type.
     Implement these endpoints exactly as described. Automated checks call them.
     You may add endpoints (for example a live stream for the UI), but you may
     not change the ones listed here.
@@ -152,6 +156,7 @@ paths:
         - { name: assetId, in: path, required: true, schema: { type: string } }
         - { name: from, in: query, schema: { type: string, format: date-time } }
         - { name: to, in: query, schema: { type: string, format: date-time } }
+        - { name: sourceType, in: query, description: "Added in 1.1.0: only points of this source type. Any other value is refused with 400 VALIDATION_FAILED.", schema: { $ref: "#/components/schemas/SourceType" } }
         - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 5000, default: 500 } }
       responses:
         "200":
@@ -376,15 +381,20 @@ components:
         speedKn: { type: number, nullable: true }
         headingDeg: { type: number, nullable: true }
         source: { type: string, nullable: true }
+    SourceType:
+      type: string
+      description: Added in 1.1.0. Derived from source by prefix; UNKNOWN for any other value or no source.
+      enum: [SATELLITE, GROUND, MOBILE, UNKNOWN]
     TrackPoint:
       type: object
-      required: [reportId, observedAt, lat, lon]
+      required: [reportId, observedAt, lat, lon, sourceType]
       properties:
         reportId: { type: string }
         observedAt: { type: string, format: date-time }
         lat: { type: number }
         lon: { type: number }
         source: { type: string, nullable: true }
+        sourceType: { $ref: "#/components/schemas/SourceType" }
     AlertStatus:
       type: string
       enum: [OPEN, CLAIMED, RESOLVED]
