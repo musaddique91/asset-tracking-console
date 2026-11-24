@@ -324,7 +324,7 @@ Cases where generated output was wrong, unsafe or not good enough:
    database password default and a machine-specific path. Besides being a secret in the repository, it
    replaced the generated password of the compose stack, so the containers could not connect. Found by
    reviewing `git status`/history; fixed by restoring environment-only defaults and moving developer
-   values to a git-ignored `local.yml` (b5e9883).
+   values to a git-ignored `local.yml` (abab5a4).
 3. **Migration mode did not start.** The one-shot `migrate` container failed because the security
    configuration required a web context. Found at the first compose start; fixed by making web and
    security configuration conditional on a web application.

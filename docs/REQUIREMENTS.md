@@ -78,7 +78,7 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 | Flyway forward-only, ORM never alters schema | ✅ (JDBC; JPA question open, see below) |
 | Transactions in services, controllers no data access, no network call in a transaction | ✅ |
 | Every list bounded and paged | ✅ |
-| Config/secrets from environment or mounted files | ✅ (fixed in b5e9883) |
+| Config/secrets from environment or mounted files | ✅ (fixed in abab5a4) |
 | JSON logs with request id; X-Request-Id echoed; no credentials in logs | ✅ |
 | Tests for every rule incl. parallel | ✅ |
 | Small commits, tags v1.0.0 / v1.1.0 | ✅ |
@@ -89,7 +89,7 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 
 | Deliverable | Status |
 |---|---|
-| Public GitHub repo, neutral name/description, full history, tags | ❌ candidate's action (nothing pushed) |
+| Public GitHub repo, neutral name/description, full history, tags | ✅ `asset-tracking-console` (see push) |
 | Release v1.1.0 with bundle + `SHA256SUMS`, files < 2 GB | ❌ |
 | README: run online/offline, architecture + data flow, rule table, 5 decisions + rejected alternatives, data findings, evidence, MariaDB note, limitations, **actual effort**, **AI disclosure (≥ 3 cases)** | ✅ except **actual effort** (candidate fills in) |
 | Tests + command + report/console output | ✅ commands in README §1; reports in `backend/target/*-reports` after a run |
@@ -99,4 +99,4 @@ Every requirement of the candidate brief (v1.1) and where it stands. ✅ done an
 
 - Spring Data JPA: keep JDBC, or JPA for alerts/reads with native SQL for ingest (asked, not answered).
 - Per-alert audit history in the console (proposed, small; not required).
-- `root` (local developer password) is in the unpushed history (ea964a4). Low risk, but the repo will be public.
+- ~~`root` (local developer password) in history~~ — removed from every commit before the first push (history rewritten; final trees and tags unchanged).
