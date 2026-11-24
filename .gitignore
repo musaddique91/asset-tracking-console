@@ -14,7 +14,12 @@ bundle/
 # deploy-time secrets and local config: never commit
 users*.json
 *seed-users*.json
-backend/config/
+backend/config/*
 !backend/src/test/resources/test-users.json
 *.env.local
 .env
+
+# TypeScript incremental build state
+*.tsbuildinfo
+# but keep the example for IDE runs
+!backend/config/local.yml.example

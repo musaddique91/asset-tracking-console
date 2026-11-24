@@ -2,7 +2,11 @@ spring:
   application:
     name: zone-watch
   config:
-    import: optional:configtree:${ZW_SECRETS_DIR:/run/zw-secrets}/
+    import:
+      - optional:configtree:${ZW_SECRETS_DIR:/run/zw-secrets}/
+      # developer overrides (git-ignored), found whether the IDE starts in the repository root or in backend/
+      - optional:file:./backend/config/local.yml
+      - optional:file:./config/local.yml
   threads:
     virtual:
       enabled: true

@@ -1,0 +1,11 @@
+# Copy to local.yml (git-ignored) for runs from the IDE.
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/zonewatch
+    username: <your user>
+    password: <your password>
+  flyway:
+    enabled: true
+zw:
+  instance: ide
+  users-file: <absolute path>/backend/config/users.json
